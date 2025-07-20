@@ -1,2 +1,2 @@
-# vn-areas
+# vn-subdivisions
 Vietnam's administrative areas API
