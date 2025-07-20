@@ -15,6 +15,8 @@ type GraphQLHandler struct {
 
 func (h *GraphQLHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
+	case http.MethodGet:
+		http.ServeFile(w, r, "static/graphiql.html")
 	case http.MethodPost:
 		var params struct {
 			Query         string         `json:"query"`
