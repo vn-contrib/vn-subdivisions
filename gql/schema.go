@@ -10,6 +10,6 @@ import (
 //go:embed schema.gql
 var schemaString string
 
-func NewSchema() *graphql.Schema {
+func newSchema() *graphql.Schema {
 	return graphql.MustParseSchema(schemaString, resolver.NewRootResolver())
 }

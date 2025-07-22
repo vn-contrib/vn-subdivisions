@@ -1,19 +1,29 @@
-package handler
+package gql
 
 import (
 	"encoding/json"
 	"net/http"
 
 	graphql "github.com/graph-gophers/graphql-go"
+	"github.com/uptrace/bun"
+	"github.com/vn-contrib/vn-subdivisions/gql/ctx"
 )
 
-var _ http.Handler = (*GraphQLHandler)(nil)
+var _ http.Handler = (*Handler)(nil)
 
-type GraphQLHandler struct {
-	Schema *graphql.Schema
+func NewHandler(db *bun.DB) *Handler {
+	return &Handler{
+		schema: newSchema(),
+		db:     db,
+	}
 }
 
-func (h *GraphQLHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+type Handler struct {
+	schema *graphql.Schema
+	db     *bun.DB
+}
+
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		http.ServeFile(w, r, "static/graphiql.html")
@@ -28,7 +38,8 @@ func (h *GraphQLHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		res := h.Schema.Exec(r.Context(), params.Query, params.OperationName, params.Variables)
+		ctx := ctx.NewContext(r.Context(), h.db)
+		res := h.schema.Exec(ctx, params.Query, params.OperationName, params.Variables)
 
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		json.NewEncoder(w).Encode(res)
