@@ -1,6 +1,6 @@
 type Query {
 	ping: String!
-	subdivisions: [Area!]!
+	subdivisions(filters: SubdivisionFilters): [Area!]!
 }
 
 type Area {
@@ -8,4 +8,10 @@ type Area {
 	name: String!
 	unit: String!
 	level: Int!
+}
+
+input SubdivisionFilters {
+	parentId: ID
+	level: Int
+	unit: String
 }

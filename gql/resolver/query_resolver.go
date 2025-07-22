@@ -3,6 +3,7 @@ package resolver
 import (
 	"context"
 
+	"github.com/graph-gophers/graphql-go"
 	"github.com/vn-contrib/vn-subdivisions/gql/ctx"
 	"github.com/vn-contrib/vn-subdivisions/model"
 )
@@ -17,12 +18,27 @@ func (*queryResolver) Ping(c context.Context) string {
 	return "pong"
 }
 
-func (*queryResolver) Subdivisions(c context.Context) ([]areaResolver, error) {
+func (*queryResolver) Subdivisions(c context.Context, vars struct {
+	Filters *submissionFilters
+}) ([]areaResolver, error) {
 	db := c.(ctx.Context).DB()
 	var resolvers []areaResolver
 	var areas []model.Area
 
-	if err := db.NewSelect().Model(&areas).Scan(c); err != nil {
+	query := db.NewSelect().Model(&areas)
+	if filters := vars.Filters; filters != nil {
+		if filters.ParentID.Set {
+			query = query.Where("parent_id = ?", *filters.ParentID.Value)
+		}
+		if filters.Level.Set {
+			query = query.Where("level = ?", filters.Level.Value)
+		}
+		if filters.Unit.Set {
+			query = query.Where("unit = ?", filters.Unit.Value)
+		}
+	}
+
+	if err := query.Scan(c); err != nil {
 		return resolvers, err
 	}
 
@@ -31,4 +47,10 @@ func (*queryResolver) Subdivisions(c context.Context) ([]areaResolver, error) {
 	}
 
 	return resolvers, nil
+}
+
+type submissionFilters struct {
+	ParentID graphql.NullID
+	Level    graphql.NullInt
+	Unit     graphql.NullString
 }
