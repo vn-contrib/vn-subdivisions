@@ -1,3 +1,11 @@
 type Query {
 	ping: String!
+	subdivisions: [Area!]!
+}
+
+type Area {
+	id: ID!
+	name: String!
+	unit: String!
+	level: Int!
 }

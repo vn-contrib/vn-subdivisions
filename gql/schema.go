@@ -11,5 +11,7 @@ import (
 var schemaString string
 
 func newSchema() *graphql.Schema {
-	return graphql.MustParseSchema(schemaString, resolver.NewRootResolver())
+	return graphql.MustParseSchema(schemaString, resolver.NewRootResolver(),
+		graphql.UseFieldResolvers(),
+	)
 }
