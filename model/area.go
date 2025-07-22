@@ -11,4 +11,6 @@ type Area struct {
 	Level    int8
 	GsoID    string `bun:",nullzero"`
 	ParentID int64  `bun:",nullzero"`
+
+	ParentGsoID string `bun:"-"`
 }

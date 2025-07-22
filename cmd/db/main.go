@@ -7,6 +7,7 @@ import (
 
 	"github.com/uptrace/bun/migrate"
 	"github.com/urfave/cli/v3"
+	"github.com/vn-contrib/vn-subdivisions/cmd/db/fixtures"
 	"github.com/vn-contrib/vn-subdivisions/cmd/db/migrations"
 	"github.com/vn-contrib/vn-subdivisions/db"
 
@@ -20,6 +21,8 @@ func main() {
 	migrator := migrate.NewMigrator(db, migrations.Migrations)
 
 	cmd := &cli.Command{
+		Name:  "db",
+		Usage: "db commands",
 		Commands: []*cli.Command{
 			{
 				Name:    "generate",
@@ -54,6 +57,18 @@ func main() {
 				Action: func(ctx context.Context, c *cli.Command) error {
 					_, err := migrator.Rollback(ctx)
 					return err
+				},
+			},
+			{
+				Name:    "seed",
+				Aliases: []string{"s"},
+				Usage:   "seed data",
+				Action: func(ctx context.Context, c *cli.Command) error {
+					s := &fixtures.Seeder{
+						DB:       db,
+						Fixtures: fixtures.Fixtures,
+					}
+					return s.Seed(ctx)
 				},
 			},
 		},
